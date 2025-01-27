@@ -23,16 +23,23 @@ export type HoloData = {
   type: string;
 };
 
-export type LiveStream = {
+export interface LiveStream {
   id: string;
   title: string;
   streamer: string;
   thumbnail: string;
-  viewers: number;
+  viewers?: number;
   startedAt: Date;
-  channel: Channel;
+  channel: {
+    id: string;
+    name: string;
+    photo: string;
+    channelUrl: string;
+    org?: string;
+  };
   isMemberOnly: boolean;
-};
+  mentions?: Array<{ org: string }>;
+}
 
 export type Schedule = {
   id: string;

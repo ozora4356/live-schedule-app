@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
+import type { Organization } from '@/app/types';
 
 interface Channel {
   id: string;
   name: string;
   photo: string;
+  org?: string;
 }
 
 interface StreamData {
@@ -21,8 +23,7 @@ interface StreamData {
 export async function GET(request: Request) {
   const apiKey = process.env.NEXT_PUBLIC_VTUBER_API_KEY;
   const { searchParams } = new URL(request.url);
-  const org = searchParams.get('org');
-  const type = searchParams.get('type');
+  const org = searchParams.get('org') as Organization;
 
   if (!apiKey || !org) {
     return NextResponse.json(
@@ -32,57 +33,47 @@ export async function GET(request: Request) {
   }
 
   try {
-    const res = await fetch(
-      `https://holodex.net/api/v2/live?${
-        type === 'live' ? 'status=live' : 'status=upcoming'
-      }&org=${org}`,
+    const response = await fetch(
+      `https://holodex.net/api/v2/videos/live?org=${org}`,
       {
         headers: {
           Accept: 'application/json',
           'X-APIKEY': apiKey,
         },
+        cache: 'no-store',
       },
     );
 
-    if (!res.ok) {
-      throw new Error('API request failed');
+    if (!response.ok) {
+      console.error('API Status:', response.status);
+      console.error('API Status Text:', response.statusText);
+      throw new Error(`API Error: ${response.status}`);
     }
 
-    const data = await res.json();
+    const data = await response.json();
 
     // フィルタリングとマッピング
     const filteredData = data
-      .filter((item: StreamData) => !shouldFilterStream(item))
-      .map((item: StreamData) =>
-        type === 'live'
-          ? {
-              id: item.id,
-              title: item.title,
-              streamer: item.channel.name,
-              thumbnail: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
-              viewers: item.live_viewers,
-              startedAt: item.start_actual
-                ? new Date(item.start_actual)
-                : new Date(),
-              channel: mapChannelData(item.channel),
-              isMemberOnly:
-                item.status === 'memberOnly' || item.topic_id === 'membersonly',
-            }
-          : {
-              id: item.id,
-              title: item.title,
-              streamer: item.channel.name,
-              scheduledAt: item.start_scheduled
-                ? new Date(item.start_scheduled)
-                : new Date(),
-              thumbnail: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
-              channel: mapChannelData(item.channel),
-            },
-      );
+      .filter((item: StreamData) => {
+        const shouldFilter = shouldFilterStream(item);
+        return !shouldFilter;
+      })
+      .map((item: StreamData) => ({
+        id: item.id,
+        title: item.title,
+        streamer: item.channel.name,
+        thumbnail: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
+        viewers: item.live_viewers,
+        startedAt: item.start_actual ? new Date(item.start_actual) : new Date(),
+        channel: mapChannelData(item.channel),
+        isMemberOnly:
+          item.status === 'memberOnly' || item.topic_id === 'membersonly',
+        org: item.org,
+      }));
 
     return NextResponse.json(filteredData);
   } catch (error) {
-    console.error('API error:', error);
+    console.error('Error fetching live streams:', error);
     return NextResponse.json(
       { error: 'Failed to fetch data' },
       { status: 500 },
@@ -96,6 +87,7 @@ function mapChannelData(channel: Channel) {
     name: channel.name,
     photo: channel.photo,
     channelUrl: `https://www.youtube.com/channel/${channel.id}`,
+    org: channel.org,
   };
 }
 
@@ -109,11 +101,13 @@ function shouldFilterStream(stream: StreamData) {
     'freechat',
   ];
 
-  const isNonHololive = !stream.channel.id.startsWith('UC');
-
-  return (
-    keywords.some((keyword) =>
-      stream.title.toLowerCase().includes(keyword.toLowerCase()),
-    ) || isNonHololive
+  // キーワードによるフィルタリング
+  const isWaitingRoom = keywords.some((keyword) =>
+    stream.title.toLowerCase().includes(keyword.toLowerCase()),
   );
+
+  // 組織によるフィルタリング
+  const isCorrectOrg = stream.channel.org === stream.org;
+
+  return isWaitingRoom || !isCorrectOrg;
 }
