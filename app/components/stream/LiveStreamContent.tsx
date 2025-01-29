@@ -11,23 +11,30 @@ import {
   SelectValue,
 } from '../../../components/ui/select';
 
-export function LiveStreamContent({ streams }: { streams: LiveStream[] }) {
-  const { sortOrder, setSortOrder } = useSortOrder();
+interface LiveStreamContentProps {
+  streams: LiveStream[];
+  membershipStreams: LiveStream[];
+}
 
-  const memberOnlyStreams = streams.filter((stream) => stream.isMemberOnly);
-  const publicStreams = streams.filter((stream) => !stream.isMemberOnly);
+export function LiveStreamContent({
+  streams,
+  membershipStreams,
+}: LiveStreamContentProps) {
+  const { sortOrder, setSortOrder } = useSortOrder();
 
   const sortStreams = (streams: LiveStream[]) => {
     return [...streams].sort((a, b) => {
-      if (sortOrder === 'desc') {
-        return b.viewers - a.viewers;
-      }
-      return a.viewers - b.viewers;
+      const viewersA = a.viewers ?? 0;
+      const viewersB = b.viewers ?? 0;
+      return sortOrder === 'desc' ? viewersB - viewersA : viewersA - viewersB;
     });
   };
 
+  const publicStreams = streams.filter(
+    (stream) => !membershipStreams.some((ms) => ms.id === stream.id),
+  );
   const sortedPublicStreams = sortStreams(publicStreams);
-  const sortedMemberStreams = sortStreams(memberOnlyStreams);
+  const sortedMemberStreams = sortStreams(membershipStreams);
 
   return (
     <div>

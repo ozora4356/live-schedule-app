@@ -55,7 +55,10 @@ export function LiveStreamCard({ streams }: Props) {
                                 メンバーシップ配信
                               </span>
                             ) : (
-                              <p>{stream.viewers.toLocaleString()}人の視聴者</p>
+                              <p>
+                                {(stream.viewers ?? 0).toLocaleString()}
+                                人の視聴者
+                              </p>
                             )}
                           </span>
                         </div>

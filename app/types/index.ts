@@ -1,11 +1,11 @@
 export type Channel = {
-  english_name: string;
   id: string;
   name: string;
-  org?: 'Hololive' | 'Nijisanji';
   photo: string;
-  type: string;
   channelUrl: string;
+  org?: string;
+  english_name?: string;
+  type?: string;
 };
 
 export type HoloData = {

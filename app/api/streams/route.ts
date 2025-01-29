@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(
-      `https://holodex.net/api/v2/videos/live?org=${org}`,
+      `https://holodex.net/api/v2/live?status=live&org=${org}`,
       {
         headers: {
           Accept: 'application/json',
@@ -109,5 +109,24 @@ function shouldFilterStream(stream: StreamData) {
   // 組織によるフィルタリング
   const isCorrectOrg = stream.channel.org === stream.org;
 
-  return isWaitingRoom || !isCorrectOrg;
+  // 視聴者数が0またはundefinedの通常配信をフィルタリング（メンバーシップ配信は除外）
+  const isZeroViewers =
+    (!stream.live_viewers || stream.live_viewers === 0) &&
+    stream.status !== 'memberOnly' &&
+    stream.topic_id !== 'membersonly';
+
+  // 配信が実際に開始されているかチェック
+  const isNotLive = stream.status !== 'live';
+
+  // 予定時間を過ぎても開始していない配信をフィルタリング
+  const now = new Date();
+  const scheduledTime = stream.start_scheduled
+    ? new Date(stream.start_scheduled)
+    : null;
+  const isOverdue =
+    scheduledTime && now > scheduledTime && !stream.start_actual;
+
+  return (
+    isWaitingRoom || !isCorrectOrg || isZeroViewers || isNotLive || isOverdue
+  );
 }

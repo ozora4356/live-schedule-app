@@ -38,8 +38,13 @@ export async function getLiveStreams(org: Organization): Promise<LiveStream[]> {
     const data = await response.json();
 
     // フィルタリングとマッピング
-    return data
-      .filter((item: StreamData) => item.channel.org === org)
+    const streams = data
+      .filter(
+        (item: StreamData) =>
+          item.channel.org === org &&
+          (item.status === 'live' || item.status === 'memberOnly') &&
+          item.start_actual !== undefined,
+      )
       .map((item: StreamData) => ({
         id: item.id,
         title: item.title,
@@ -55,8 +60,12 @@ export async function getLiveStreams(org: Organization): Promise<LiveStream[]> {
           org: item.channel.org,
         },
         isMemberOnly:
-          item.status === 'memberOnly' || item.topic_id === 'membersonly',
+          item.status === 'memberOnly' ||
+          item.topic_id === 'membersonly' ||
+          item.live_viewers === 0,
       }));
+
+    return streams;
   } catch (error) {
     console.error('Error fetching streams:', error);
     return [];

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
 import { getLiveStreams } from '../../lib/api/streams';
 import { LiveStreamContent } from './LiveStreamContent';
 import LoadingSpinner from './LoadingSpinner';
@@ -24,6 +24,15 @@ export default function LiveStreamListContainer() {
       .catch(() => setError(true));
   }, [selectedOrg, setLiveStreams]);
 
+  const filterMemberStreams = (streams: LiveStream[]) => {
+    // 厳密に true との比較を行う
+    return streams.filter((stream) => stream.isMemberOnly === true);
+  };
+
+  const membershipStreams = useMemo(() => {
+    return filterMemberStreams(streams);
+  }, [streams]);
+
   if (error) {
     return (
       <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 my-4">
@@ -36,7 +45,10 @@ export default function LiveStreamListContainer() {
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <LiveStreamContent streams={streams} />
+      <LiveStreamContent
+        streams={streams}
+        membershipStreams={membershipStreams}
+      />
     </Suspense>
   );
 }
