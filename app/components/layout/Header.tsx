@@ -1,8 +1,8 @@
 'use client';
 
 import { Sidebar } from './Sidebar';
-import { ThemeToggle } from './ThemeToggle';
-import { OrgSelect } from './OrgSelect';
+import { ThemeToggle } from '../ui/ThemeToggle';
+import { OrgSelect } from '../ui/OrgSelect';
 
 export default function Header() {
   return (
@@ -14,7 +14,7 @@ export default function Header() {
           </div>
           {/* <h1 className="text-[32px] text-slate-900 dark:text-white"></h1> */}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <ThemeToggle />
           <OrgSelect />
         </div>

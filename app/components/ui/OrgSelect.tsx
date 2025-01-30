@@ -18,7 +18,7 @@ export function OrgSelect() {
       value={selectedOrg}
       onValueChange={(value: Organization) => setSelectedOrg(value)}
     >
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-[140px] lg:w-full">
         <SelectValue placeholder={selectedOrg} />
       </SelectTrigger>
       <SelectContent>

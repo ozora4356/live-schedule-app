@@ -2,13 +2,14 @@
 
 import { Menu } from 'lucide-react';
 import { useState } from 'react';
-import { useLiveStreamsAll } from '@/app/contexts/LiveStreamContext';
-import { ThemeToggle } from './ThemeToggle';
-import { OrgSelect } from './OrgSelect';
+import { useLiveStreamContext } from '@/app/contexts/LiveStreamContext';
+import { ThemeToggle } from '../ui/ThemeToggle';
+import { OrgSelect } from '../ui/OrgSelect';
 import { FavoriteList } from '../stream/FavoriteList';
+import { RefreshButton } from '../ui/RefreshButton';
 
 export function Sidebar() {
-  const allLiveStreams = useLiveStreamsAll();
+  const { liveStreams: allLiveStreams } = useLiveStreamContext();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -16,8 +17,11 @@ export function Sidebar() {
       {/* デスクトップ表示 */}
       <div className="hidden lg:block lg:sticky top-0 left-0 h-[100vh] w-64 bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
         <div className="py-8 lg:px-4">
-          <div className="flex gap-2">
-            <ThemeToggle />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <ThemeToggle />
+              <RefreshButton />
+            </div>
             <OrgSelect />
           </div>
           <div className="mt-8">

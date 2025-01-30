@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import { ThemeProvider } from 'next-themes';
+import { OrgProvider } from './contexts/OrgContext';
+import { FavoriteProvider } from './contexts/FavoriteContext';
+import { SortProvider } from './contexts/SortContext';
+import { LiveStreamProvider } from './contexts/LiveStreamContext';
+import { ScheduleProvider } from './contexts/ScheduleContext';
 import Header from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
-import { OrgProvider } from '@/app/contexts/OrgContext';
-import { FavoriteProvider } from '@/app/contexts/FavoriteContext';
-import { SortProvider } from '@/app/contexts/SortContext';
-import { LiveStreamProvider } from '@/app/contexts/LiveStreamContext';
-import { ScheduleProvider } from '@/app/contexts/ScheduleContext';
-import { ThemeProvider } from './contexts/ThemeContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,11 +31,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider>
+    <html lang="ja" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <OrgProvider>
             <FavoriteProvider>
               <SortProvider>

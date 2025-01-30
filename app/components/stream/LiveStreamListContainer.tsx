@@ -1,36 +1,26 @@
 'use client';
 
-import { Suspense, useMemo } from 'react';
 import { getLiveStreams } from '../../lib/api/streams';
 import { LiveStreamContent } from './LiveStreamContent';
-import LoadingSpinner from './LoadingSpinner';
 import { useOrg } from '../../contexts/OrgContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import type { LiveStream } from '../../types';
-import { useLiveStreams } from '../../contexts/LiveStreamContext';
 
 export default function LiveStreamListContainer() {
   const { selectedOrg } = useOrg();
   const [streams, setStreams] = useState<LiveStream[]>([]);
   const [error, setError] = useState(false);
-  const { setLiveStreams } = useLiveStreams();
 
   useEffect(() => {
     getLiveStreams(selectedOrg)
       .then((data) => {
         setStreams(data);
-        setLiveStreams(data);
       })
       .catch(() => setError(true));
-  }, [selectedOrg, setLiveStreams]);
-
-  const filterMemberStreams = (streams: LiveStream[]) => {
-    // 厳密に true との比較を行う
-    return streams.filter((stream) => stream.isMemberOnly === true);
-  };
+  }, [selectedOrg]);
 
   const membershipStreams = useMemo(() => {
-    return filterMemberStreams(streams);
+    return streams.filter((stream) => stream.isMemberOnly === true);
   }, [streams]);
 
   if (error) {
@@ -44,11 +34,9 @@ export default function LiveStreamListContainer() {
   }
 
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <LiveStreamContent
-        streams={streams}
-        membershipStreams={membershipStreams}
-      />
-    </Suspense>
+    <LiveStreamContent
+      streams={streams}
+      membershipStreams={membershipStreams}
+    />
   );
 }

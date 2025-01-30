@@ -1,9 +1,7 @@
 'use client';
 
-import { Suspense } from 'react';
 import { getSchedules } from '../../lib/api/streams';
 import { ScheduleCard } from './ScheduleCard';
-import LoadingSpinner from './LoadingSpinner';
 import { useOrg } from '../../contexts/OrgContext';
 import { useEffect, useState } from 'react';
 import type { Schedule } from '../../types';
@@ -15,7 +13,9 @@ export default function ScheduleListContainer() {
 
   useEffect(() => {
     getSchedules(selectedOrg)
-      .then(setSchedules)
+      .then((data) => {
+        setSchedules(data);
+      })
       .catch(() => setError(true));
   }, [selectedOrg]);
 
@@ -29,9 +29,5 @@ export default function ScheduleListContainer() {
     );
   }
 
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <ScheduleCard schedules={schedules} />
-    </Suspense>
-  );
+  return <ScheduleCard schedules={schedules} />;
 }
