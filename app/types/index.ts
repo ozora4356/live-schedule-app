@@ -51,4 +51,4 @@ export type Schedule = {
   type: 'stream' | 'video';
 };
 
-export type Organization = 'Hololive' | 'Nijisanji';
+export type Organization = 'Nijisanji' | 'Hololive' | 'Vspo';
