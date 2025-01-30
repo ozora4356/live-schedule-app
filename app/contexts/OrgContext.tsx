@@ -4,8 +4,6 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { Organization } from '../types';
 import type { ReactNode } from 'react';
 
-type Organization = 'Nijisanji' | 'Hololive' | 'Vspo';
-
 interface OrgContextType {
   selectedOrg: Organization;
   setSelectedOrg: (org: Organization) => void;
