@@ -5,10 +5,10 @@ import type { LiveStream } from '../types';
 import { getLiveStreams } from '../lib/api/streams';
 import { useOrg } from '../contexts/OrgContext';
 
-type LiveStreamContextType = {
+interface LiveStreamContextType {
   liveStreams: LiveStream[];
   setLiveStreams: (streams: LiveStream[]) => void;
-};
+}
 
 const LiveStreamContext = createContext<LiveStreamContextType | undefined>(
   undefined,
@@ -57,10 +57,10 @@ export function LiveStreamProvider({
   );
 }
 
-export function useLiveStreams() {
+export function useLiveStreamContext() {
   const context = useContext(LiveStreamContext);
   if (!context) {
-    throw new Error('useLiveStreams must be used within a LiveStreamProvider');
+    throw new Error('useLiveStreamContext must be used within LiveStreamProvider');
   }
   return context;
 }

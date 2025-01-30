@@ -97,13 +97,17 @@ function shouldFilterStream(stream: StreamData) {
     '待機所',
     'waiting room',
     '待機枠',
-    'FREE CHAT',
-    'freechat',
+    'free chat',
+    'schedule',
+    '予定',
+    '配信予定',
+    'upcoming',
   ];
 
-  // キーワードによるフィルタリング
+  // タイトルを小文字に変換して、キーワードが含まれているかをチェック
+  const normalizedTitle = stream.title.toLowerCase();
   const isWaitingRoom = keywords.some((keyword) =>
-    stream.title.toLowerCase().includes(keyword.toLowerCase()),
+    normalizedTitle.includes(keyword.toLowerCase()),
   );
 
   // 組織によるフィルタリング
