@@ -1,5 +1,5 @@
 {
-  "trailingComma": "all",
+  "trailingComma": "es5",
   "tabWidth": 2,
   "semi": true,
   "singleQuote": true,
@@ -11,5 +11,7 @@
   "proseWrap": "preserve",
   "quoteProps": "as-needed",
   "jsxSingleQuote": false,
-  "useTabs": false
+  "useTabs": false,
+  "requireConfig": true,
+  "ignorePath": ".prettierignore"
 }
