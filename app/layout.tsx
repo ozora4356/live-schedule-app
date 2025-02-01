@@ -22,7 +22,27 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Vtuber Live Streaming',
-  description: 'Vtuberの配信をチェック',
+  description: 'Vtuberの配信をリアルタイムでチェック!',
+  openGraph: {
+    title: 'Vtuber Live Streaming',
+    description: 'Vtuberの配信をリアルタイムでチェック!',
+    url: 'https://example.com/your-page',
+    siteName: 'Vtuber Live Streaming',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+      },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Vtuber Live Streaming',
+    description: 'Vtuberの配信をリアルタイムでチェック!',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function RootLayout({
