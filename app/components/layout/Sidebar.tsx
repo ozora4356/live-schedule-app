@@ -49,8 +49,8 @@ export function Sidebar() {
 
         {/* サイドバー */}
         <div
-          className={`fixed top-0 left-0 w-64 h-full bg-gray-50 dark:bg-gray-800 z-50 transform transition-transform duration-300 ease-in-out ${
-            isOpen ? 'translate-x-0' : '-translate-x-full'
+          className={`fixed top-0 right-0 w-64 h-full bg-gray-50 dark:bg-gray-800 z-50 transform transition-transform duration-300 ease-in-out ${
+            isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
           <div className="p-4">
