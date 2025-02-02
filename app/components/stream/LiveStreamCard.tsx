@@ -37,7 +37,7 @@ export function LiveStreamCard({ streams }: Props) {
                     className="rounded-full flex-shrink-0"
                   />
                   <div className="flex-1">
-                    <h3 className="font-bold text-base line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <h3 className="font-bold text-base line-clamp-2 can-hover:group-hover:text-blue-600 dark:can-hover:group-hover:text-blue-400 transition-colors">
                       {stream.title}
                     </h3>
                     <div className="flex items-end justify-between">

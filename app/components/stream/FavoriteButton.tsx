@@ -14,7 +14,7 @@ export function FavoriteButton({ channel }: Props) {
 
   return (
     <button
-      className="group rounded-full p-2 hover:bg-red-200 transition-colors isolate"
+      className="group rounded-full p-2 can-hover:hover:bg-red-200 transition-colors isolate"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -25,7 +25,7 @@ export function FavoriteButton({ channel }: Props) {
         className={`w-5 h-5 ${
           favorite 
             ? 'fill-red-500 text-red-500 dark:fill-red-500 dark:text-red-500' 
-            : 'text-black/50 hover:text-red-500 dark:text-white group-hover:text-red-500'
+            : 'text-black/50 can-hover:hover:text-red-500 dark:text-white can-hover:group-hover:text-red-500'
         }`}
       />
     </button>
