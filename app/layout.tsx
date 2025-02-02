@@ -26,11 +26,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Vtuber Live Streaming',
     description: 'Vtuberの配信をリアルタイムでチェック!',
-    url: 'https://example.com/your-page',
+    url: 'https://v-live-pi.vercel.app/',
     siteName: 'Vtuber Live Streaming',
     images: [
       {
-        url: '/og-image.png',
+        url: 'https://v-live-pi.vercel.app/og-image.png',
         width: 1200,
         height: 630,
       },
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Vtuber Live Streaming',
     description: 'Vtuberの配信をリアルタイムでチェック!',
-    images: ['/og-image.png'],
+    images: ['https://v-live-pi.vercel.app/og-image.png'],
   },
 };
 
