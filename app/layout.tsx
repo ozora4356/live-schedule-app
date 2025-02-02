@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: 'Vtuber Live Streaming',
     images: [
       {
-        url: 'https://v-live-pi.vercel.app/og-image.png',
+        url: 'https://v-live-pi.vercel.app/og-image.png?20250202',
         width: 1200,
         height: 630,
       },
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Vtuber Live Streaming',
     description: 'Vtuberの配信をリアルタイムでチェック!',
-    images: ['https://v-live-pi.vercel.app/og-image.png'],
+    images: ['https://v-live-pi.vercel.app/og-image.png?20250202'],
   },
 };
 
