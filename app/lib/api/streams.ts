@@ -1,6 +1,6 @@
 import type { LiveStream, Schedule, Organization } from '../../types';
 
-interface StreamData {
+export interface StreamData {
   id: string;
   title: string;
   channel: {
@@ -18,16 +18,10 @@ interface StreamData {
 
 export async function getLiveStreams(org: Organization): Promise<LiveStream[]> {
   try {
-    const response = await fetch(
-      `https://holodex.net/api/v2/live?status=live&org=${org}`,
-      {
-        headers: {
-          Accept: 'application/json',
-          'X-APIKEY': process.env.NEXT_PUBLIC_VTUBER_API_KEY || '',
-        },
-        cache: 'no-store',
-      },
-    );
+    // サーバーサイドのAPIルートを使用
+    const response = await fetch(`/api/streams?org=${org}`, {
+      cache: 'no-store',
+    });
 
     if (!response.ok) {
       console.error('API Status:', response.status);
@@ -35,36 +29,7 @@ export async function getLiveStreams(org: Organization): Promise<LiveStream[]> {
       return [];
     }
 
-    const data = await response.json();
-
-    // フィルタリングとマッピング
-    const streams = data
-      .filter(
-        (item: StreamData) =>
-          item.channel.org === org &&
-          (item.status === 'live' || item.status === 'memberOnly') &&
-          item.start_actual !== undefined,
-      )
-      .map((item: StreamData) => ({
-        id: item.id,
-        title: item.title,
-        streamer: item.channel.name,
-        thumbnail: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
-        viewers: item.live_viewers,
-        startedAt: item.start_actual ? new Date(item.start_actual) : new Date(),
-        channel: {
-          id: item.channel.id,
-          name: item.channel.name,
-          photo: item.channel.photo,
-          channelUrl: `https://www.youtube.com/channel/${item.channel.id}`,
-          org: item.channel.org,
-        },
-        isMemberOnly:
-          item.status === 'memberOnly' ||
-          item.topic_id === 'membersonly' ||
-          item.live_viewers === 0,
-      }));
-
+    const streams = await response.json();
     return streams;
   } catch (error) {
     console.error('Error fetching streams:', error);
@@ -74,16 +39,10 @@ export async function getLiveStreams(org: Organization): Promise<LiveStream[]> {
 
 export async function getSchedules(org: Organization): Promise<Schedule[]> {
   try {
-    const response = await fetch(
-      `https://holodex.net/api/v2/live?status=upcoming&org=${org}`,
-      {
-        headers: {
-          Accept: 'application/json',
-          'X-APIKEY': process.env.NEXT_PUBLIC_VTUBER_API_KEY || '',
-        },
-        cache: 'no-store',
-      },
-    );
+    // 新しいAPIエンドポイントを作成して使用
+    const response = await fetch(`/api/schedules?org=${org}`, {
+      cache: 'no-store',
+    });
 
     if (!response.ok) {
       console.error('API Status:', response.status);
@@ -91,27 +50,8 @@ export async function getSchedules(org: Organization): Promise<Schedule[]> {
       return [];
     }
 
-    const data = await response.json();
-
-    // フィルタリングとマッピング
-    return data
-      .filter((item: StreamData) => item.channel.org === org)
-      .map((item: StreamData) => ({
-        id: item.id,
-        title: item.title,
-        streamer: item.channel.name,
-        scheduledAt: item.start_scheduled
-          ? new Date(item.start_scheduled)
-          : new Date(),
-        thumbnail: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
-        channel: {
-          id: item.channel.id,
-          name: item.channel.name,
-          photo: item.channel.photo,
-          channelUrl: `https://www.youtube.com/channel/${item.channel.id}`,
-          org: item.channel.org,
-        },
-      }));
+    const schedules = await response.json();
+    return schedules;
   } catch (error) {
     console.error('Error fetching schedules:', error);
     return [];

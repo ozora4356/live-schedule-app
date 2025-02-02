@@ -21,7 +21,7 @@ interface StreamData {
 }
 
 export async function GET(request: Request) {
-  const apiKey = process.env.NEXT_PUBLIC_VTUBER_API_KEY;
+  const apiKey = process.env.VTUBER_API_KEY;
   const { searchParams } = new URL(request.url);
   const org = searchParams.get('org') as Organization;
 
@@ -110,9 +110,6 @@ function shouldFilterStream(stream: StreamData) {
     normalizedTitle.includes(keyword.toLowerCase()),
   );
 
-  // 組織によるフィルタリング
-  const isCorrectOrg = stream.channel.org === stream.org;
-
   // 視聴者数が0またはundefinedの通常配信をフィルタリング（メンバーシップ配信は除外）
   const isZeroViewers =
     (!stream.live_viewers || stream.live_viewers === 0) &&
@@ -131,6 +128,6 @@ function shouldFilterStream(stream: StreamData) {
     scheduledTime && now > scheduledTime && !stream.start_actual;
 
   return (
-    isWaitingRoom || !isCorrectOrg || isZeroViewers || isNotLive || isOverdue
+    isWaitingRoom || isZeroViewers || isNotLive || isOverdue
   );
 }
