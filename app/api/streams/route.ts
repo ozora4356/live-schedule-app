@@ -18,6 +18,7 @@ interface StreamData {
   start_actual?: string;
   start_scheduled?: string;
   org?: string;
+  mentions?: { org?: string }[];
 }
 
 export async function GET(request: Request) {
@@ -25,14 +26,95 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const org = searchParams.get('org') as Organization;
 
-  if (!apiKey || !org) {
-    return NextResponse.json(
-      { error: 'Missing required parameters' },
-      { status: 400 },
-    );
+  if (!apiKey) {
+    return NextResponse.json({ error: 'Missing API key' }, { status: 400 });
   }
 
   try {
+    if (org === 'All') {
+      const [
+        hololiveResponse,
+        nijisanjiResponse,
+        vspoResponse,
+        neoPorteResponse,
+      ] = await Promise.all([
+        fetch('https://holodex.net/api/v2/live?status=live&org=Hololive', {
+          headers: {
+            Accept: 'application/json',
+            'X-APIKEY': apiKey,
+          },
+          cache: 'no-store',
+        }),
+        fetch('https://holodex.net/api/v2/live?status=live&org=Nijisanji', {
+          headers: {
+            Accept: 'application/json',
+            'X-APIKEY': apiKey,
+          },
+          cache: 'no-store',
+        }),
+        fetch('https://holodex.net/api/v2/live?status=live&org=VSpo', {
+          headers: {
+            Accept: 'application/json',
+            'X-APIKEY': apiKey,
+          },
+          cache: 'no-store',
+        }),
+        fetch('https://holodex.net/api/v2/live?status=live&org=Neo-Porte', {
+          headers: {
+            Accept: 'application/json',
+            'X-APIKEY': apiKey,
+          },
+          cache: 'no-store',
+        }),
+      ]);
+
+      if (
+        !hololiveResponse.ok ||
+        !nijisanjiResponse.ok ||
+        !vspoResponse.ok ||
+        !neoPorteResponse.ok
+      ) {
+        throw new Error('API Error');
+      }
+
+      const [hololiveData, nijisanjiData, vspoData, neoPorteData] =
+        await Promise.all([
+          hololiveResponse.json(),
+          nijisanjiResponse.json(),
+          vspoResponse.json(),
+          neoPorteResponse.json(),
+        ]);
+
+      // 重複を除去するために、Map を使用
+      const streamMap = new Map();
+
+      // すべてのデータを結合し、IDをキーとして重複を防ぐ
+      [...hololiveData, ...nijisanjiData, ...vspoData, ...neoPorteData].forEach(
+        (item: StreamData) => {
+          if (!shouldFilterStream(item, org)) {
+            streamMap.set(item.id, {
+              id: item.id,
+              title: item.title,
+              streamer: item.channel.name,
+              thumbnail: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
+              viewers: item.live_viewers,
+              startedAt: item.start_actual
+                ? new Date(item.start_actual)
+                : new Date(),
+              channel: mapChannelData(item.channel),
+              isMemberOnly:
+                item.status === 'memberOnly' || item.topic_id === 'membersonly',
+              org: item.channel.org,
+            });
+          }
+        }
+      );
+
+      const filteredData = Array.from(streamMap.values());
+      return NextResponse.json(filteredData);
+    }
+
+    // 特定の組織の配信を取得
     const response = await fetch(
       `https://holodex.net/api/v2/live?status=live&org=${org}`,
       {
@@ -41,7 +123,7 @@ export async function GET(request: Request) {
           'X-APIKEY': apiKey,
         },
         cache: 'no-store',
-      },
+      }
     );
 
     if (!response.ok) {
@@ -54,10 +136,7 @@ export async function GET(request: Request) {
 
     // フィルタリングとマッピング
     const filteredData = data
-      .filter((item: StreamData) => {
-        const shouldFilter = shouldFilterStream(item);
-        return !shouldFilter;
-      })
+      .filter((item: StreamData) => !shouldFilterStream(item, org))
       .map((item: StreamData) => ({
         id: item.id,
         title: item.title,
@@ -68,7 +147,7 @@ export async function GET(request: Request) {
         channel: mapChannelData(item.channel),
         isMemberOnly:
           item.status === 'memberOnly' || item.topic_id === 'membersonly',
-        org: item.org,
+        org: item.channel.org,
       }));
 
     return NextResponse.json(filteredData);
@@ -76,7 +155,7 @@ export async function GET(request: Request) {
     console.error('Error fetching live streams:', error);
     return NextResponse.json(
       { error: 'Failed to fetch data' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -91,7 +170,10 @@ function mapChannelData(channel: Channel) {
   };
 }
 
-function shouldFilterStream(stream: StreamData) {
+function shouldFilterStream(item: StreamData, selectedOrg: Organization) {
+  // 選択された組織と配信者の所属組織が一致するかチェック
+  // Allの場合は全ての組織を許可
+  const isWrongOrg = selectedOrg !== 'All' && item.channel.org !== selectedOrg;
   const keywords = [
     'フリーチャット',
     '待機所',
@@ -104,30 +186,36 @@ function shouldFilterStream(stream: StreamData) {
     'upcoming',
   ];
 
-  // タイトルを小文字に変換して、キーワードが含まれているかをチェック
-  const normalizedTitle = stream.title.toLowerCase();
+  const normalizedTitle = item.title.toLowerCase();
   const isWaitingRoom = keywords.some((keyword) =>
-    normalizedTitle.includes(keyword.toLowerCase()),
+    normalizedTitle.includes(keyword.toLowerCase())
   );
 
-  // 視聴者数が0またはundefinedの通常配信をフィルタリング（メンバーシップ配信は除外）
   const isZeroViewers =
-    (!stream.live_viewers || stream.live_viewers === 0) &&
-    stream.status !== 'memberOnly' &&
-    stream.topic_id !== 'membersonly';
+    (!item.live_viewers || item.live_viewers === 0) &&
+    item.status !== 'memberOnly' &&
+    item.topic_id !== 'membersonly';
 
-  // 配信が実際に開始されているかチェック
-  const isNotLive = stream.status !== 'live';
+  const isNotLive = item.status !== 'live';
 
-  // 予定時間を過ぎても開始していない配信をフィルタリング
   const now = new Date();
-  const scheduledTime = stream.start_scheduled
-    ? new Date(stream.start_scheduled)
+  const scheduledTime = item.start_scheduled
+    ? new Date(item.start_scheduled)
     : null;
-  const isOverdue =
-    scheduledTime && now > scheduledTime && !stream.start_actual;
+  const isOverdue = scheduledTime && now > scheduledTime && !item.start_actual;
+
+  // コラボ配信のフィルタリング
+  const hasDifferentOrgMentions =
+    item.mentions?.some(
+      (mention) => mention.org && mention.org !== item.channel.org
+    ) ?? false;
 
   return (
-    isWaitingRoom || isZeroViewers || isNotLive || isOverdue
+    isWrongOrg ||
+    isWaitingRoom ||
+    isZeroViewers ||
+    isNotLive ||
+    isOverdue ||
+    hasDifferentOrgMentions
   );
 }
