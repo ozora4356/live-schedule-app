@@ -2,14 +2,12 @@
 
 import { Menu } from 'lucide-react';
 import { useState } from 'react';
-import { useLiveStreamContext } from '@/app/contexts/LiveStreamContext';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { OrgSelect } from '../ui/OrgSelect';
 import { FavoriteList } from '../stream/FavoriteList';
 import { RefreshButton } from '../ui/RefreshButton';
 
 export function Sidebar() {
-  const { liveStreams: allLiveStreams } = useLiveStreamContext();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -24,8 +22,8 @@ export function Sidebar() {
             </div>
             <OrgSelect />
           </div>
-          <div className="mt-8">
-            <FavoriteList liveStreams={allLiveStreams} />
+          <div className="mt-10">
+            <FavoriteList />
           </div>
         </div>
       </div>
