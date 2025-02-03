@@ -38,7 +38,6 @@ export interface LiveStream {
     org?: string;
   };
   isMemberOnly: boolean;
-  mentions?: Array<{ org: string }>;
 }
 
 export type Schedule = {
@@ -51,4 +50,9 @@ export type Schedule = {
   type: 'stream' | 'video';
 };
 
-export type Organization = 'Nijisanji' | 'Hololive' | 'Vspo';
+export type Organization =
+  | 'All'
+  | 'Hololive'
+  | 'Nijisanji'
+  | 'VSpo'
+  | 'Neo-Porte';
