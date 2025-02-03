@@ -11,7 +11,7 @@ interface LiveStreamContextType {
 }
 
 const LiveStreamContext = createContext<LiveStreamContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export function LiveStreamProvider({
@@ -25,22 +25,29 @@ export function LiveStreamProvider({
   useEffect(() => {
     const fetchLiveStreams = async () => {
       try {
-        const streams = await getLiveStreams(selectedOrg);
-
-        // 配列チェックを追加
-        const streamsArray = Array.isArray(streams) ? streams : [];
-
-        // 空の配列の場合は早期リターン
-        if (streamsArray.length === 0) {
-          setLiveStreams([]);
-          return;
+        if (selectedOrg === 'All') {
+          // Allの場合、両方の組織の配信を取得して結合
+          const [
+            hololiveStreams,
+            nijisanjiStreams,
+            vspoStreams,
+            neoPorteStreams,
+          ] = await Promise.all([
+            getLiveStreams('Hololive'),
+            getLiveStreams('Nijisanji'),
+            getLiveStreams('VSpo'),
+            getLiveStreams('Neo-Porte'),
+          ]);
+          setLiveStreams([
+            ...hololiveStreams,
+            ...nijisanjiStreams,
+            ...vspoStreams,
+            ...neoPorteStreams,
+          ]);
+        } else {
+          const streams = await getLiveStreams(selectedOrg);
+          setLiveStreams(streams);
         }
-
-        const filteredStreams = streamsArray.filter(
-          (stream) => stream.channel.org === selectedOrg,
-        );
-
-        setLiveStreams(filteredStreams);
       } catch (error) {
         console.error('Error fetching live streams:', error);
         setLiveStreams([]);
@@ -59,8 +66,10 @@ export function LiveStreamProvider({
 
 export function useLiveStreamContext() {
   const context = useContext(LiveStreamContext);
-  if (!context) {
-    throw new Error('useLiveStreamContext must be used within LiveStreamProvider');
+  if (context === undefined) {
+    throw new Error(
+      'useLiveStreamContext must be used within a LiveStreamProvider'
+    );
   }
   return context;
 }
@@ -72,9 +81,16 @@ export function useLiveStreamsAll() {
   useEffect(() => {
     const fetchAllStreams = async () => {
       try {
-        const [hololiveStreams, nijisanjiStreams] = await Promise.all([
+        const [
+          hololiveStreams,
+          nijisanjiStreams,
+          vspoStreams,
+          neoPorteStreams,
+        ] = await Promise.all([
           getLiveStreams('Hololive'),
           getLiveStreams('Nijisanji'),
+          getLiveStreams('VSpo'),
+          getLiveStreams('Neo-Porte'),
         ]);
 
         // 配列チェックを追加
@@ -84,15 +100,31 @@ export function useLiveStreamsAll() {
         const nijisanjiArray = Array.isArray(nijisanjiStreams)
           ? nijisanjiStreams
           : [];
+        const vspoArray = Array.isArray(vspoStreams) ? vspoStreams : [];
+        const neoPorteArray = Array.isArray(neoPorteStreams)
+          ? neoPorteStreams
+          : [];
 
+        // 各組織の配信をフィルタリング
         const filteredHololive = hololiveArray.filter(
-          (stream) => stream.channel.org === 'Hololive',
+          (stream) => stream.channel.org === 'Hololive'
         );
         const filteredNijisanji = nijisanjiArray.filter(
-          (stream) => stream.channel.org === 'Nijisanji',
+          (stream) => stream.channel.org === 'Nijisanji'
+        );
+        const filteredVSpo = vspoArray.filter(
+          (stream) => stream.channel.org === 'VSpo'
+        );
+        const filteredNeoPorte = neoPorteArray.filter(
+          (stream) => stream.channel.org === 'Neo-Porte'
         );
 
-        setAllLiveStreams([...filteredHololive, ...filteredNijisanji]);
+        setAllLiveStreams([
+          ...filteredHololive,
+          ...filteredNijisanji,
+          ...filteredVSpo,
+          ...filteredNeoPorte,
+        ]);
       } catch (error) {
         console.error('Error fetching all streams:', error);
       }
