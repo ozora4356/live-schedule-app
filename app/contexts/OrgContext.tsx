@@ -9,20 +9,11 @@ interface OrgContextType {
   setSelectedOrg: (org: Organization) => void;
 }
 
-const VALID_ORGS: Organization[] = ['Nijisanji', 'Hololive', 'Vspo'];
-const DEFAULT_ORG: Organization = 'Hololive';
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
 
 export function OrgProvider({ children }: { children: ReactNode }) {
-  const [selectedOrg, setSelectedOrg] = useState<Organization>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('selectedOrg') as Organization;
-      // 保存された値が有効な組織かチェック
-      return VALID_ORGS.includes(saved) ? saved : DEFAULT_ORG;
-    }
-    return DEFAULT_ORG;
-  });
+  const [selectedOrg, setSelectedOrg] = useState<Organization>('All');
 
   useEffect(() => {
     localStorage.setItem('selectedOrg', selectedOrg);
