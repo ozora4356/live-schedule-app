@@ -3,29 +3,31 @@
 import Image from 'next/image';
 import { useFavorites } from '@/app/contexts/FavoriteContext';
 import { FavoriteButton } from './FavoriteButton';
-import type { LiveStream } from '@/app/types';
+import { useLiveStreamsAll } from '@/app/contexts/LiveStreamContext';
 
-export function FavoriteList({ liveStreams }: { liveStreams: LiveStream[] }) {
+export function FavoriteList() {
   const { favorites } = useFavorites();
+  const allLiveStreams = useLiveStreamsAll();
 
   // ライブ配信中のお気に入りチャンネル
   const liveChannels = favorites.filter((favorite) =>
-    liveStreams.some((stream) => stream.channel.id === favorite.id),
+    allLiveStreams.some((stream) => stream.channel.id === favorite.id)
   );
 
   // 非ライブ配信のお気に入りチャンネル
   const offlineChannels = favorites.filter(
     (favorite) =>
-      !liveStreams.some((stream) => stream.channel.id === favorite.id),
+      !allLiveStreams.some((stream) => stream.channel.id === favorite.id)
   );
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg font-bold mb-2">配信中のチャンネル</h2>
+        <h2 className="text-lg font-bold mb-1">お気に入りチャンネル</h2>
         {liveChannels.length > 0 && (
           <>
-            <div>
+            <div className="mt-8">
+              <h3 className="text-base font-semibold mb-2">配信中</h3>
               {liveChannels.map((channel) => (
                 <div
                   key={channel.id}
@@ -58,8 +60,8 @@ export function FavoriteList({ liveStreams }: { liveStreams: LiveStream[] }) {
           </>
         )}
       </div>
-      <div className="">
-        <h2 className="text-lg font-bold mb-2">お気に入りチャンネル</h2>
+      <div>
+        <h3 className="text-base font-semibold mb-1">オフライン</h3>
         {offlineChannels.length > 0 && (
           <>
             <div>
@@ -82,7 +84,9 @@ export function FavoriteList({ liveStreams }: { liveStreams: LiveStream[] }) {
                       className="rounded-full flex-shrink-0"
                     />
                     <div className="overflow-hidden flex-1 min-w-0">
-                      <p className="font-medium truncate">{channel.name}</p>
+                      <p className="font-medium truncate text-gray-400">
+                        {channel.name}
+                      </p>
                     </div>
                   </a>
                   <FavoriteButton channel={channel} />

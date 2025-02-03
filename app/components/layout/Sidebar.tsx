@@ -73,7 +73,7 @@ export function Sidebar() {
                 />
               </svg>
             </button>
-            <FavoriteList liveStreams={allLiveStreams} />
+            <FavoriteList />
           </div>
         </div>
       </div>
