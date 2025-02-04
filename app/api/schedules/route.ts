@@ -2,6 +2,19 @@ import { NextResponse } from 'next/server';
 import type { Organization } from '@/app/types';
 import type { StreamData } from '@/app/lib/api/streams';
 
+function shouldFilterSchedule(item: StreamData, selectedOrg: Organization) {
+  // 選択された組織と配信者の所属組織が一致するかチェック
+  const isWrongOrg = selectedOrg !== 'All' && item.channel.org !== selectedOrg;
+
+  // コラボ配信のフィルタリング
+  const hasDifferentOrgMentions =
+    item.mentions?.some(
+      (mention) => mention.org && mention.org !== item.channel.org
+    ) ?? false;
+
+  return isWrongOrg || hasDifferentOrgMentions;
+}
+
 export async function GET(request: Request) {
   const apiKey = process.env.VTUBER_API_KEY;
   const { searchParams } = new URL(request.url);
@@ -69,29 +82,30 @@ export async function GET(request: Request) {
       // 重複を除去するために、Map を使用
       const scheduleMap = new Map();
 
-      // 両方のデータを結合し、IDをキーとして重複を防ぐ
+      // すべてのデータを結合し、IDをキーとして重複を防ぐ
       [...hololiveData, ...nijisanjiData, ...vspoData, ...neoPorteData].forEach(
         (item: StreamData) => {
-          scheduleMap.set(item.id, {
-            id: item.id,
-            title: item.title,
-            streamer: item.channel.name,
-            scheduledAt: item.start_scheduled
-              ? new Date(item.start_scheduled)
-              : new Date(),
-            thumbnail: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
-            channel: {
-              id: item.channel.id,
-              name: item.channel.name,
-              photo: item.channel.photo,
-              channelUrl: `https://www.youtube.com/channel/${item.channel.id}`,
-              org: item.channel.org,
-            },
-          });
+          if (!shouldFilterSchedule(item, org)) {
+            scheduleMap.set(item.id, {
+              id: item.id,
+              title: item.title,
+              streamer: item.channel.name,
+              scheduledAt: item.start_scheduled
+                ? new Date(item.start_scheduled)
+                : new Date(),
+              thumbnail: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
+              channel: {
+                id: item.channel.id,
+                name: item.channel.name,
+                photo: item.channel.photo,
+                channelUrl: `https://www.youtube.com/channel/${item.channel.id}`,
+                org: item.channel.org,
+              },
+            });
+          }
         }
       );
 
-      // Map の値を配列に変換
       const schedules = Array.from(scheduleMap.values());
       return NextResponse.json(schedules);
     }
@@ -114,22 +128,24 @@ export async function GET(request: Request) {
 
     const data = await response.json();
 
-    const schedules = data.map((item: StreamData) => ({
-      id: item.id,
-      title: item.title,
-      streamer: item.channel.name,
-      scheduledAt: item.start_scheduled
-        ? new Date(item.start_scheduled)
-        : new Date(),
-      thumbnail: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
-      channel: {
-        id: item.channel.id,
-        name: item.channel.name,
-        photo: item.channel.photo,
-        channelUrl: `https://www.youtube.com/channel/${item.channel.id}`,
-        org: item.channel.org,
-      },
-    }));
+    const schedules = data
+      .filter((item: StreamData) => !shouldFilterSchedule(item, org))
+      .map((item: StreamData) => ({
+        id: item.id,
+        title: item.title,
+        streamer: item.channel.name,
+        scheduledAt: item.start_scheduled
+          ? new Date(item.start_scheduled)
+          : new Date(),
+        thumbnail: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
+        channel: {
+          id: item.channel.id,
+          name: item.channel.name,
+          photo: item.channel.photo,
+          channelUrl: `https://www.youtube.com/channel/${item.channel.id}`,
+          org: item.channel.org,
+        },
+      }));
 
     return NextResponse.json(schedules);
   } catch (error) {

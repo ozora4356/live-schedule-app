@@ -14,6 +14,7 @@ export interface StreamData {
   start_scheduled?: string;
   status?: string;
   topic_id?: string;
+  mentions?: Array<{ org?: string }>;
 }
 
 export async function getLiveStreams(org: Organization): Promise<LiveStream[]> {
