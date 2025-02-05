@@ -9,14 +9,18 @@ import type { LiveStream } from '../../types';
 export default function LiveStreamListContainer() {
   const { selectedOrg } = useOrg();
   const [streams, setStreams] = useState<LiveStream[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     getLiveStreams(selectedOrg)
       .then((data) => {
         setStreams(data);
+        setError(false);
       })
-      .catch(() => setError(true));
+      .catch(() => setError(true))
+      .finally(() => setIsLoading(false));
   }, [selectedOrg]);
 
   const membershipStreams = useMemo(() => {
@@ -37,6 +41,7 @@ export default function LiveStreamListContainer() {
     <LiveStreamContent
       streams={streams}
       membershipStreams={membershipStreams}
+      isLoading={isLoading}
     />
   );
 }

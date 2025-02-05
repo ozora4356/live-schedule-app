@@ -1,9 +1,11 @@
 import Image from 'next/image';
 import type { Schedule } from '../../types';
 import { FavoriteButton } from './FavoriteButton';
+import { ScheduleCardSkeleton } from './ScheduleCardSkeleton';
 
 type Props = {
   schedules: Schedule[];
+  isLoading: boolean;
 };
 
 function formatScheduleTime(date: Date) {
@@ -15,7 +17,16 @@ function formatScheduleTime(date: Date) {
   return `${month}/${day} ${hour}:${minute}~`;
 }
 
-export function ScheduleCard({ schedules }: Props) {
+export function ScheduleCard({ schedules, isLoading }: Props) {
+  if (isLoading) {
+    return (
+      <div>
+        <h2 className="text-2xl font-bold mb-4">配信予定</h2>
+        <ScheduleCardSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div>
       <section>

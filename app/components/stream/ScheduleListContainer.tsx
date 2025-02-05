@@ -9,14 +9,18 @@ import type { Schedule } from '../../types';
 export default function ScheduleListContainer() {
   const { selectedOrg } = useOrg();
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     getSchedules(selectedOrg)
       .then((data) => {
         setSchedules(data);
+        setError(false);
       })
-      .catch(() => setError(true));
+      .catch(() => setError(true))
+      .finally(() => setIsLoading(false));
   }, [selectedOrg]);
 
   if (error) {
@@ -29,5 +33,5 @@ export default function ScheduleListContainer() {
     );
   }
 
-  return <ScheduleCard schedules={schedules} />;
+  return <ScheduleCard schedules={schedules} isLoading={isLoading} />;
 }
