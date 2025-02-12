@@ -31,7 +31,7 @@ export function ScheduleCard({ schedules, isLoading }: Props) {
     <div>
       <section>
         <h2 className="text-2xl font-bold mb-4">配信予定</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {schedules.map((schedule) => (
             <div key={schedule.id} className="overflow-hidden">
               <div className="flex flex-col relative h-full">
@@ -56,17 +56,17 @@ export function ScheduleCard({ schedules, isLoading }: Props) {
                       alt={schedule.channel.name}
                       width={40}
                       height={40}
-                      className="rounded-full flex-shrink-0"
+                      className="hidden sm:block rounded-full flex-shrink-0"
                     />
-                    <div>
+                    <div className="flex-1">
                       <h3 className="font-bold text-base line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {schedule.title}
                       </h3>
-                      <div className="mt-1">
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                      <div className="mt-1 pr-8 sm:pr-0">
+                        <p className="text-sm line-clamp-1 text-gray-600 dark:text-gray-300">
                           {schedule.streamer}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-blue-500 font-bold mt-1">
                           {formatScheduleTime(new Date(schedule.scheduledAt))}
                         </p>
                       </div>

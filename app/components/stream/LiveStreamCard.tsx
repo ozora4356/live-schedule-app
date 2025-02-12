@@ -9,7 +9,7 @@ type Props = {
 export function LiveStreamCard({ streams }: Props) {
   return (
     <section>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {streams.map((stream) => (
           <div key={stream.id} className="overflow-hidden">
             <div className="flex flex-col relative h-full">
@@ -34,22 +34,22 @@ export function LiveStreamCard({ streams }: Props) {
                     alt={stream.channel.name}
                     width={40}
                     height={40}
-                    className="rounded-full flex-shrink-0"
+                    className="hidden sm:block rounded-full flex-shrink-0"
                   />
                   <div className="flex-1">
                     <h3 className="font-bold text-base line-clamp-2 can-hover:group-hover:text-blue-600 dark:can-hover:group-hover:text-blue-400 transition-colors">
                       {stream.title}
                     </h3>
-                    <div className="flex items-end justify-between">
+                    <div className="flex items-end justify-between pr-8 sm:pr-0">
                       <div className="mt-1">
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                        <p className="text-sm line-clamp-1 text-gray-600 dark:text-gray-300">
                           {stream.streamer}
                         </p>
-                        <div className="flex items-center mt text-sm gap-1">
-                          <span className="text-stream-red font-bold">
+                        <div className="sm:flex sm:items-center mt-1 text-sm gap-1">
+                          <span className="text-stream-red font-bold block sm:inline">
                             配信中
                           </span>
-                          <span className="text-gray-600">
+                          <span className="text-gray-600 block">
                             {stream.isMemberOnly ? (
                               <span className="text-blue-500 font-bold">
                                 メンバーシップ配信
