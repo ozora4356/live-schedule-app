@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import type { Schedule } from '../../types';
 import { FavoriteButton } from './FavoriteButton';
-import { ScheduleCardSkeleton } from './ScheduleCardSkeleton';
+import { CardSkeleton } from '../ui/CardSkelton';
 
 type Props = {
   schedules: Schedule[];
@@ -22,7 +22,7 @@ export function ScheduleCard({ schedules, isLoading }: Props) {
     return (
       <div>
         <h2 className="text-2xl font-bold mb-4">配信予定</h2>
-        <ScheduleCardSkeleton />
+        <CardSkeleton />
       </div>
     );
   }

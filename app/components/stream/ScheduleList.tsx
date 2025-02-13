@@ -6,7 +6,7 @@ import { useOrg } from '../../contexts/OrgContext';
 import { useEffect, useState } from 'react';
 import type { Schedule } from '../../types';
 
-export default function ScheduleListContainer() {
+export default function ScheduleList() {
   const { selectedOrg } = useOrg();
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [isLoading, setIsLoading] = useState(true);

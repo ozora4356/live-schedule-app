@@ -1,7 +1,7 @@
 'use client';
 
-import LiveStreamListContainer from './components/stream/LiveStreamListContainer';
-import ScheduleListContainer from './components/stream/ScheduleListContainer';
+import LiveStreamListContainer from './components/stream/LiveStreamList';
+import ScheduleListContainer from './components/stream/ScheduleList';
 
 export default function Home() {
   return (
