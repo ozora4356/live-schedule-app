@@ -28,34 +28,40 @@ export function FavoriteList() {
         </h3>
         {liveChannels.length > 0 && (
           <div className="space-y-1">
-            {liveChannels.map((channel) => (
-              <div
-                key={channel.id}
-                className="flex gap-2 items-center justify-between"
-              >
-                <a
-                  href={channel.channelUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-2 flex-1 min-w-0 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded-lg"
+            {liveChannels.map((channel) => {
+              const liveStream = allLiveStreams.find(
+                (stream) => stream.channel.id === channel.id
+              );
+
+              return (
+                <div
+                  key={channel.id}
+                  className="flex gap-2 items-center justify-between"
                 >
-                  <div className="relative">
-                    <Image
-                      src={channel.photo}
-                      alt={channel.name}
-                      width={30}
-                      height={30}
-                      className="rounded-full flex-shrink-0"
-                    />
-                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-gray-800" />
-                  </div>
-                  <div className="overflow-hidden flex-1 min-w-0">
-                    <p className="font-medium truncate">{channel.name}</p>
-                  </div>
-                </a>
-                <FavoriteButton channel={channel} />
-              </div>
-            ))}
+                  <a
+                    href={`https://www.youtube.com/watch?v=${liveStream?.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-2 flex-1 min-w-0 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded-lg"
+                  >
+                    <div className="relative">
+                      <Image
+                        src={channel.photo}
+                        alt={channel.name}
+                        width={30}
+                        height={30}
+                        className="rounded-full flex-shrink-0"
+                      />
+                      <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-gray-800" />
+                    </div>
+                    <div className="overflow-hidden flex-1 min-w-0">
+                      <p className="font-medium truncate">{channel.name}</p>
+                    </div>
+                  </a>
+                  <FavoriteButton channel={channel} />
+                </div>
+              );
+            })}
           </div>
         )}
         {liveChannels.length === 0 && (
