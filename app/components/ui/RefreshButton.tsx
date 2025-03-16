@@ -15,8 +15,62 @@ export function RefreshButton() {
   const handleRefresh = async () => {
     setIsLoading(true);
     try {
-      const streams = await getLiveStreams(selectedOrg);
-      setLiveStreams(streams);
+      // すべての組織の配信を取得
+      const [hololiveStreams, nijisanjiStreams, vspoStreams, neoPorteStreams] =
+        await Promise.all([
+          getLiveStreams('Hololive'),
+          getLiveStreams('Nijisanji'),
+          getLiveStreams('VSpo'),
+          getLiveStreams('Neo-Porte'),
+        ]);
+
+      // 配列チェックを追加
+      const hololiveArray = Array.isArray(hololiveStreams)
+        ? hololiveStreams
+        : [];
+      const nijisanjiArray = Array.isArray(nijisanjiStreams)
+        ? nijisanjiStreams
+        : [];
+      const vspoArray = Array.isArray(vspoStreams) ? vspoStreams : [];
+      const neoPorteArray = Array.isArray(neoPorteStreams)
+        ? neoPorteStreams
+        : [];
+
+      // 各組織の配信をフィルタリング
+      const filteredHololive = hololiveArray.filter(
+        (stream) => stream.channel.org === 'Hololive'
+      );
+      const filteredNijisanji = nijisanjiArray.filter(
+        (stream) => stream.channel.org === 'Nijisanji'
+      );
+      const filteredVSpo = vspoArray.filter(
+        (stream) => stream.channel.org === 'VSpo'
+      );
+      const filteredNeoPorte = neoPorteArray.filter(
+        (stream) => stream.channel.org === 'Neo-Porte'
+      );
+
+      // 選択されている組織に応じて表示する配信を設定
+      if (selectedOrg === 'All') {
+        setLiveStreams([
+          ...filteredHololive,
+          ...filteredNijisanji,
+          ...filteredVSpo,
+          ...filteredNeoPorte,
+        ]);
+      } else {
+        const orgStreams =
+          {
+            Hololive: filteredHololive,
+            Nijisanji: filteredNijisanji,
+            VSpo: filteredVSpo,
+            'Neo-Porte': filteredNeoPorte,
+          }[selectedOrg] || [];
+        setLiveStreams(orgStreams);
+      }
+
+      // ページをリロード
+      window.location.reload();
     } catch (error) {
       console.error('Failed to refresh streams:', error);
     } finally {
@@ -36,4 +90,4 @@ export function RefreshButton() {
       <span className="sr-only">更新</span>
     </Button>
   );
-} 
+}
