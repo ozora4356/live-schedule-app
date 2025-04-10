@@ -9,10 +9,7 @@ import { LiveStreamProvider } from './contexts/LiveStreamContext';
 import { ScheduleProvider } from './contexts/ScheduleContext';
 import Header from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
-import { GoogleAnalytics } from '@next/third-parties/google';
-
-
-const gaId = process.env.NEXT_PUBLIC_GA_ID;
+import { Analytics } from '@vercel/analytics/next';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -56,7 +53,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <OrgProvider>
             <FavoriteProvider>
@@ -69,7 +68,9 @@ export default function RootLayout({
                         <div className="hidden lg:block">
                           <Sidebar />
                         </div>
-                        <main className="flex-1 px-4 py-8 lg:px-6 lg:py-16">{children}</main>
+                        <main className="flex-1 px-4 py-8 lg:px-6 lg:py-16">
+                          {children}
+                        </main>
                       </div>
                     </div>
                   </ScheduleProvider>
@@ -78,8 +79,8 @@ export default function RootLayout({
             </FavoriteProvider>
           </OrgProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
-      {gaId && <GoogleAnalytics gaId={gaId} />}
     </html>
   );
 }
