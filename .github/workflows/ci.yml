@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   build:
@@ -32,7 +32,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          HOLODEX_API_KEY: ${{ secrets.HOLODEX_API_KEY }}
+          VTUBER_API_KEY: ${{ secrets.VTUBER_API_KEY }}
 
       - name: Cache build
         uses: actions/cache@v4
