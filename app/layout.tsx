@@ -9,6 +9,10 @@ import { LiveStreamProvider } from './contexts/LiveStreamContext';
 import { ScheduleProvider } from './contexts/ScheduleContext';
 import Header from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
+import { GoogleAnalytics } from '@next/third-parties/google';
+
+
+const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -75,6 +79,7 @@ export default function RootLayout({
           </OrgProvider>
         </ThemeProvider>
       </body>
+      {gaId && <GoogleAnalytics gaId={gaId} />}
     </html>
   );
 }
